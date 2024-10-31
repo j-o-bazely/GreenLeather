@@ -1,0 +1,46 @@
+#!/bin/bash
+#$ -pe smp 1
+#$ -l h_vmem=1G
+#$ -l h_rt=1:0:0
+#$ -cwd
+#$ -j y
+#$ -t 1-10
+#$ -tc 1
+
+## GL.1_fastQC ##
+#
+#This code runs fastqc across all files in the green & leatherback datasets
+#
+##             ##
+
+## Set paths
+workdir=/data/SBCS-EizaguirreLab/James_B/cleanPHD/greenLeather/GL_dataStorage
+outdir=/data/SBCS-EizaguirreLab/James_B/cleanPHD/greenLeather/GL_analysis/GL_QC
+
+## Load modules
+module load fastqc/0.11.9
+
+# Load sample list
+sample_list=${workdir}/GL_metadata/GL_sampleList.csv
+
+
+## Pulling out sample IDs
+    # cat =                 # sed =
+ID=$( cat "$sample_list" | sed -n ${SGE_TASK_ID}p )
+echo ${ID}
+
+## Create sample QC directory
+mkdir -p ${outdir}/${ID}
+
+## Move into sample directory 
+cd ${workdir}/GL_rawData/${ID}
+
+## Run every file in the md5.txt file
+awk '$2 ~ /^(CM_|DC_)/ {print $2}' MD5.txt | while read line; do
+    echo $line
+    fastqc --nogroup -o ${outdir}/${ID} "$line"
+done
+
+## Unload the module
+module unload fastqc/0.11.9
+
