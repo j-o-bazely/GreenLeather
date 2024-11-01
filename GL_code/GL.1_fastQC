@@ -4,7 +4,7 @@
 #$ -l h_rt=1:0:0
 #$ -cwd
 #$ -j y
-#$ -t 1-10
+#$ -t 2-9
 #$ -tc 1
 
 ## GL.1_fastQC ##
@@ -15,13 +15,13 @@
 
 ## Set paths
 workdir=/data/SBCS-EizaguirreLab/James_B/cleanPHD/greenLeather/GL_dataStorage
-outdir=/data/SBCS-EizaguirreLab/James_B/cleanPHD/greenLeather/GL_analysis/GL_QC
+outdir=/data/SBCS-EizaguirreLab/James_B/cleanPHD/greenLeather/GL_analysis/GL_QC/GL_rawQC
 
 ## Load modules
 module load fastqc/0.11.9
 
 # Load sample list
-sample_list=${workdir}/GL_metadata/GL_sampleList.csv
+sample_list=${workdir}/GL_metadata/GL_sampleList.txt
 
 
 ## Pulling out sample IDs
@@ -29,11 +29,9 @@ sample_list=${workdir}/GL_metadata/GL_sampleList.csv
 ID=$( cat "$sample_list" | sed -n ${SGE_TASK_ID}p )
 echo ${ID}
 
-## Create sample QC directory
-mkdir -p ${outdir}/${ID}
-
-## Move into sample directory 
-cd ${workdir}/GL_rawData/${ID}
+## Move into sample directory
+echo "Changing to directory: $workdir/GL_rawData/$ID/" 
+cd $workdir/GL_rawData/$ID/
 
 ## Run every file in the md5.txt file
 awk '$2 ~ /^(CM_|DC_)/ {print $2}' MD5.txt | while read line; do
